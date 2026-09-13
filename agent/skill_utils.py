@@ -314,6 +314,14 @@ def _normalize_string_set(values) -> Set[str]:
     return {name.strip() for name in parse_config_string_list(values) if name.strip()}
 
 
+def get_configured_compact_categories() -> Set[str]:
+    """User-configured skill categories to demote to names-only from skills.compact_categories in config.yaml."""
+    skills_cfg = _skills_cfg()
+    if skills_cfg is None:
+        return set()
+    return _normalize_string_set(skills_cfg.get("compact_categories"))
+
+
 # config identity -> resolved external dirs. Called once per skill during
 # banner / tool-registry scans; re-resolving each time dominated cold-start.
 _EXTERNAL_DIRS_CACHE: Dict[Tuple[str, int], List[Path]] = {}

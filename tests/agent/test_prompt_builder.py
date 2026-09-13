@@ -345,6 +345,29 @@ class TestBuildSkillsSystemPrompt:
         full = build_skills_system_prompt()
         assert "Write threads" in full
 
+    def test_configured_compact_categories_from_config_yaml(
+        self, monkeypatch, tmp_path
+    ):
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        d = tmp_path / "skills" / "marketing" / "seo-tool"
+        d.mkdir(parents=True)
+        (d / "SKILL.md").write_text(
+            "---\nname: seo-tool\ndescription: SEO optimization specialist\n---\n"
+        )
+        full = build_skills_system_prompt()
+        assert "seo-tool" in full
+        assert "SEO optimization specialist" in full
+
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text("skills:\n  compact_categories:\n    - marketing\n")
+        from agent.skill_utils import _external_dirs_cache_clear
+        _external_dirs_cache_clear()
+
+        compact = build_skills_system_prompt()
+        assert "seo-tool" in compact
+        assert "SEO optimization specialist" not in compact
+        assert "marketing [names only]: seo-tool" in compact
+
 
 
     def test_excludes_disabled_skills(self, monkeypatch, tmp_path):

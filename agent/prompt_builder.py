@@ -1222,6 +1222,10 @@ def build_skills_system_prompt(
     else:
         skills_dir = get_skills_dir()
     try:
+        from agent.skill_utils import get_configured_compact_categories
+        configured_compact = get_configured_compact_categories()
+        if configured_compact:
+            compact_categories = frozenset(compact_categories or ()) | frozenset(configured_compact)
         external_dirs = get_all_skills_dirs()[1:]  # skip local (index 0)
         # Trusted project-local dirs — highest-precedence tier; cwd/trust are session-stable, so byte-stable.
         from agent.skill_utils import get_project_skills_dirs
